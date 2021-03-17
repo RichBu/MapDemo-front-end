@@ -1,0 +1,35 @@
+Json files for all of the pins
+
+['{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"soccer" }',
+'{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"football" }',
+'{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"frisbee" }',
+'{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"soccer" }',
+'{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"football" }',
+'{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"frisbee" }',
+'{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"soccer" }',
+'{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"football" }',
+'{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"frisbee" }',
+'{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"soccer" }',
+'{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"football" }',
+'{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"frisbee" }',
+'{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"baseball" }',
+'{ "name": "12 Street Beach at Northerly Island Park", "Addr1":"1200 S. Linn White Dr.", "addr2":"Chicago, IL 60605", "phone":"773-363-2225", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"volleyball" }',
+'{ "name": "12 Street Beach at Northerly Island Park", "Addr1":"1200 S. Linn White Dr.", "addr2":"Chicago, IL 60605", "phone":"773-363-2225", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"frisbee" }',
+'{ "name": "Andersonville Playlot Park", "Addr1":"5233 N. Ashland Ave.", "addr2":"Chicago, IL 60640", "phone":"312-742-5101", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"running" }',
+'{ "name": "57th Street Beach", "Addr1":"5700 S Lake Shore Dr", "addr2":"Chicago, IL 60637", "phone":"312-742-3224", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"running" }',
+'{ "name": "57th Street Beach", "Addr1":"5700 S Lake Shore Dr", "addr2":"Chicago, IL 60637", "phone":"312-742-3224", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"swimming" }',
+'{ "name": "Ohio Street Beach", "Addr1":"400 N. Lake Shore Dr.", "addr2":"Chicago IL 60611", "phone":"312-747-0832", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"swimming" }',
+'{ "name": "Ohio Street Beach", "Addr1":"400 N. Lake Shore Dr.", "addr2":"Chicago IL 60611", "phone":"312-747-0832", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"volleyball" }']
+
+
+
+
+'{ "name": "", "Addr1":"", "addr2":"", "phone":"", "hours":"", "lat":, "lon":, "activity":"" }',
+
+
+                        p_name: place.name,
+                        p_addr1: place.Addr1,  //***RPB change to lower case
+                        p_addr2: place.addr2,
+                        p_phone: place.phone,
+                        p_hours: place.hours,
+                        p_activity: place.activity

@@ -1,0 +1,1197 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Google Maps Demo</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Bootstrap CDN-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="assets/javascript/moment.js"></script>
+    <script src="assets/javascript/numeral.js"></script>
+
+    <!--  load fonts awesome -->
+    <script src="https://use.fontawesome.com/f41d7d3328.js"></script>
+    <script>
+
+        //Global Variables to define distance from map center, map and infowindow that pops up on user click function
+
+        var configData = {
+            centerSearchDist: 2 * 1609.34,
+            restaurantSearchDist: 2 * 1609.34,
+            searchDist: 6, //2 miles search earea
+            venueSearchDist: 2 * 1609.34,  //because google is in meters
+            dispRichOutput: false,
+            dispRichTestFalseGPS: false,   //punch in known values for GPS
+            keyAPIgoogle: "AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk",
+            keyAPIgoogleRich: "AIzaSyCrHKoPEISSoDAClePzcHVJVHB7G1-xb6s"
+        }
+
+        var map;
+        var infowindow;
+        //var testCenter = { lat: 41.9499, lng: -87.6638 };
+        var testCenter = { lat: 41.918470, lng: -87.637820 };
+
+        var activityArray = ['{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"soccer" }',
+            '{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"football" }',
+            '{ "name": "Grant Park", "Addr1":"337 E. Randolph St", "addr2":"Chicago, IL 60940", "phone":"312-742-3918", "hours":"6am-11pm", "lat":41.883760, "lon":-87.619130, "activity":"frisbee" }',
+            '{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"soccer" }',
+            '{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"football" }',
+            '{ "name": "Lincoln Park", "Addr1":"2045 N. Lincoln Park W", "addr2":"Chicago, IL 60614", "phone":"312-742-7726", "hours":"6am-11pm", "lat":41.919670, "lon":-87.635860, "activity":"frisbee" }',
+            '{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"soccer" }',
+            '{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"football" }',
+            '{ "name": "Addams/Medill Park", "Addr1":"1301 W. 14th St.", "addr2":"Chicago, IL 60608", "phone":"312-746-5086", "hours":"6am-11pm", "lat":41.863310, "lon":-87.659070, "activity":"frisbee" }',
+            '{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"soccer" }',
+            '{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"football" }',
+            '{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"frisbee" }',
+            '{ "name": "Arrigo Park", "Addr1":"801 S. Loomis", "addr2":"Chicago, IL 60607", "phone":"312-746-5369", "hours":"6am-11pm", "lat":41.871720, "lon":-87.661640, "activity":"baseball" }',
+            '{ "name": "12 Street Beach at Northerly Island Park", "Addr1":"1200 S. Linn White Dr.", "addr2":"Chicago, IL 60605", "phone":"773-363-2225", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"volleyball" }',
+            '{ "name": "12 Street Beach at Northerly Island Park", "Addr1":"1200 S. Linn White Dr.", "addr2":"Chicago, IL 60605", "phone":"773-363-2225", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"frisbee" }',
+            '{ "name": "Andersonville Playlot Park", "Addr1":"5233 N. Ashland Ave.", "addr2":"Chicago, IL 60640", "phone":"312-742-5101", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"running" }',
+            '{ "name": "57th Street Beach", "Addr1":"5700 S Lake Shore Dr", "addr2":"Chicago, IL 60637", "phone":"312-742-3224", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"running" }',
+            '{ "name": "57th Street Beach", "Addr1":"5700 S Lake Shore Dr", "addr2":"Chicago, IL 60637", "phone":"312-742-3224", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"swimming" }',
+            '{ "name": "Ohio Street Beach", "Addr1":"400 N. Lake Shore Dr.", "addr2":"Chicago IL 60611", "phone":"312-747-0832", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"swimming" }',
+            '{ "name": "Ohio Street Beach", "Addr1":"400 N. Lake Shore Dr.", "addr2":"Chicago IL 60611", "phone":"312-747-0832", "hours":"6am-11pm", "lat":41.863341, "lon":-87.609215, "activity":"volleyball" }']
+
+
+
+        //Initial Function to Load Map
+        function initMap(typeMap, _venueObj) {
+            //Using Coordinates for Music Box Theater.
+            //This would be coordinates of map center pulled in from user selection
+            //testCenter = { lat: 41.9499, lng: -87.6638 };
+
+            //Map Options
+            console.log("lat/lon coordinates");
+            console.log(_venueObj.searchLoc.lat);
+            testCenter.lat = parseFloat(_venueObj.searchLoc.lat);
+            testCenter.lng = parseFloat(_venueObj.searchLoc.long);
+
+
+            if (_venueObj.typeMap == 1) {
+                //default map
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: testCenter,
+                    zoom: 15
+                    //Custom Styles for Map Background
+                });  //close the new map object
+            };
+
+
+            if (_venueObj.typeMap == 2) {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: testCenter,
+                    zoom: 15,
+                    //Custom Styles for Map Background
+                    styles: [
+                        {
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#1d2c4d"
+                                }
+                            ]
+                        },
+                        {
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#8ec3b9"
+                                }
+                            ]
+                        },
+                        {
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#1a3646"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "administrative.country",
+                            "elementType": "geometry.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#4b6878"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "administrative.land_parcel",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#64779e"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "administrative.province",
+                            "elementType": "geometry.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#4b6878"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "landscape.man_made",
+                            "elementType": "geometry.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#334e87"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "landscape.natural",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#023e58"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#283d6a"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#6f9ba5"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#1d2c4d"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi.park",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#023e58"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "poi.park",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#3C7680"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#304a7d"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#98a5be"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#1d2c4d"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.highway",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#2c6675"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.highway",
+                            "elementType": "geometry.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#255763"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.highway",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#b0d5ce"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "road.highway",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#023e58"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "transit",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#98a5be"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "transit",
+                            "elementType": "labels.text.stroke",
+                            "stylers": [
+                                {
+                                    "color": "#1d2c4d"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "transit.line",
+                            "elementType": "geometry.fill",
+                            "stylers": [
+                                {
+                                    "color": "#283d6a"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "transit.station",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#3a4762"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "geometry",
+                            "stylers": [
+                                {
+                                    "color": "#0e1626"
+                                }
+                            ]
+                        },
+                        {
+                            "featureType": "water",
+                            "elementType": "labels.text.fill",
+                            "stylers": [
+                                {
+                                    "color": "#4e6d70"
+                                }
+                            ]
+                        }
+                    ]
+                });  //close the new map object
+            };
+
+            //Add Center Marker
+            var centerIcon = {
+                //Variable to add in Custom Image of Map Center
+                url: "assets/images/mapcenter.svg", // url
+                //url: '<i class="fa fa-crosshairs" aria-hidden="true"></i>',
+                scaledSize: new google.maps.Size(50, 50), // scaled size
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(0, 0) // anchor
+            };
+
+            var marker = new google.maps.Marker({
+                position: testCenter,
+                map: map,
+                icon: centerIcon
+            });
+
+            //Info Window for Map Center Marker
+            var infoWindow = new google.maps.InfoWindow({
+                content: '<h2>Center of Map</h2>'
+            });
+
+            //Event Listener for Map Center Marker
+            marker.addListener('click', function () {
+                infoWindow.open(map, marker);
+            })
+
+            //Function to do Nearby Search
+            infowindow = new google.maps.InfoWindow();
+            var service = new google.maps.places.PlacesService(map);
+
+            //check if doing nearby search
+            if (_venueObj.searchRestF) {
+                service.nearbySearch({
+                    location: testCenter,
+                    //radius: configData.restaurantSearchDist,
+                    radius: 2000.0,
+                    type: ['restaurant'],
+                    rankBy: google.maps.places.RankBy.PROMINENCE
+                }, callback_search);
+            };
+
+            //For Loop to Create Markers for all Restaurants pulled in by Nearby Search
+            function callback_search(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    for (var i = 0; i < results.length; i++) {
+                        createRestMarker(results[i]);
+                    }
+                }
+            } // callback_search  function
+
+            //Add Markers for all Restaurants pulled in on Nearby Search
+            function createRestMarker(place) {
+                //Variable to Define and Resize Icon Image based on Google Places Type, e.g. restaurant
+                var icon = {
+                    url: "assets/images/plate.png", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                var placeLoc = place.geometry.location;
+                //Function to Add Marker
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location,
+                    icon: icon,
+                    demo_id: 0,
+                    title: '0'
+                },
+                );
+
+                //On Click Function to Load Restaurant Details
+                google.maps.event.addListener(marker, 'click', function () {
+                    // console.log(place);
+
+                    var request = {
+                        placeId: place.place_id
+                    };
+                    console.log("marker=");
+                    console.log(marker);
+                    console.log("place ID=");
+                    console.log(request.placeId);
+                    service = new google.maps.places.PlacesService(map);
+                    service.getDetails(request, callback_restdetail);
+
+                    function callback_restdetail(place, status) {
+                        if (status == google.maps.places.PlacesServiceStatus.OK) {
+                            createRestMarker(place);
+                            console.log(place);
+                            // If/Else Statement to assign plain text to price levels in place of numbers
+                            if (place.price_level === 1) {
+                                place.price_level = "Inexpensive";
+                            } else if (place.price_level === 2) {
+                                place.price_level = "Moderate";
+                            } else if (place.price_level === 3) {
+                                place.price_level = "Expensive";
+                            } else if (place.price_level === 4) {
+                                place.price_level = "Very Expensive";
+                            };
+
+                            //If Else Statement to Assign new Value for Open or Closed Now in infoWindow
+                            if (place.opening_hours.open_now === true) {
+                                place.opening_hours.open_now = "Open Now"
+                            } else {
+                                place.opening_hours.open_now = "Closed Now"
+                            };
+
+                            //Variable Used to Define Directions from Map Center to Selected Restaurant
+                            var directionsURL = 'https://www.google.com/maps/dir/?api=1&origin=' + testCenter.lat + ', ' + testCenter.lng + '&destination=' + place.formatted_address + '&travelmode=driving';
+
+                            //Variable to more easily see all elements added to InfoWindow
+                            var urlString = '<div><strong>' + place.name + '</strong><br>' + '<br>' + '<strong><a href="' + place.website;
+                            urlString += '"target="_blank">Website</a></strong>' + '   |   ' + '<strong><a href="' + directionsURL + '"target="_blank">Directions to Restaurant from Centermark</a></strong>' + '<p><strong>Address: </strong>' + place.formatted_address + '</p>';
+                            urlString += '<p><strong>Phone: </strong>' + place.formatted_phone_number + '</p>';
+                            urlString += '<p><strong>Rating: </strong>' + place.rating + '</p>' + '<p><strong>Price level: </strong>' + place.price_level + '</p>';
+                            urlString += '<p><strong>Hours: </strong>' + place.opening_hours.weekday_text + '</p>';
+                            urlString += '<p><strong>' + place.opening_hours.open_now + '</strong></p>' + '</div>';
+                            infowindow.setContent(urlString);
+
+                        }
+                    }
+
+                    infowindow.open(map, this);
+
+                });
+            } // create restaurant marker
+
+            //Add Markers for all activities
+            function createActivityMarker(place, typeActivity) {
+                //Variable to Define and Resize Icon Image based on Google Places Type, e.g. restaurant
+                var icon_soccer = {
+                    url: "assets/images/soccerball.svg", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                var icon_swimming = {
+                    url: "assets/images/swimming.svg", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                var icon_volleyball = {
+                    url: "assets/images/volleyball.svg", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                var icon_football = {
+                    url: "assets/images/football.svg", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                var icon_frisbee = {
+                    url: "assets/images/frisbee.png", // url
+                    scaledSize: new google.maps.Size(30, 30), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                };
+                //var placeLoc = place.location;
+                //Function to Add Marker
+
+                var marker;
+                var validMarker = false;
+
+                if (typeActivity == "soccer") {
+                    validMarker = true;
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.location,
+                        icon: icon_soccer,
+                        demo_id: 0,
+                        title: place.name,
+                        act_name: place.name,
+                        act_addr1: place.Addr1,
+                        act_addr2: place.addr2,
+                        act_phone: place.phone,
+                        act_hours: place.hours,
+                        act_activity: typeActivity
+                    },
+                    );
+                };
+                if (typeActivity == "swimming") {
+                    validMarker = true;
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.location,
+                        icon: icon_swimming,
+                        demo_id: 0,
+                        title: place.name,
+                        act_name: place.name,
+                        act_addr1: place.Addr1,
+                        act_addr2: place.addr2,
+                        act_phone: place.phone,
+                        act_hours: place.hours,
+                        act_activity: typeActivity
+                    },
+                    );
+                };
+                if (typeActivity == "volleyball") {
+                    validMarker = true;
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.location,
+                        icon: icon_volleyball,
+                        demo_id: 0,
+                        title: place.name,
+                        act_name: place.name,
+                        act_addr1: place.Addr1,
+                        act_addr2: place.addr2,
+                        act_phone: place.phone,
+                        act_hours: place.hours,
+                        act_activity: typeActivity
+                    },
+                    );
+                };
+                if (typeActivity == "football") {
+                    validMarker = true;
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.location,
+                        icon: icon_football,
+                        demo_id: 0,
+                        title: place.name,
+                        act_name: place.name,
+                        act_addr1: place.Addr1,
+                        act_addr2: place.addr2,
+                        act_phone: place.phone,
+                        act_hours: place.hours,
+                        act_activity: typeActivity
+                    },
+                    );
+                };
+                if (typeActivity == "frisbee") {
+                    validMarker = true;
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.location,
+                        icon: icon_frisbee,
+                        demo_id: 0,
+                        title: place.name,
+                        act_name: place.name,
+                        act_addr1: place.Addr1,
+                        act_addr2: place.addr2,
+                        act_phone: place.phone,
+                        act_hours: place.hours,
+                        act_activity: typeActivity
+                    },
+                    );
+                };
+
+                //On Click Function to load activity details
+                if (validMarker) {
+                    google.maps.event.addListener(marker, 'click', function () {
+                        // console.log(place);
+
+                        var request = {
+                            //placeId: place.place_id
+                        };
+                        console.log("*** entry into detail ***");
+                        //console.log(marker);
+                        console.log(marker.title);
+                        console.log("act variables");
+                        console.log(marker.act_name);
+
+
+                        //Variable Used to Define Directions from Map Center to Selected Restaurant
+                        var directionsURL = 'https://www.google.com/maps/dir/?api=1&origin=' + testCenter.lat + ', ' + testCenter.lng + '&destination=' + place.formatted_address + '&travelmode=driving';
+
+                        //Variable to more easily see all elements added to InfoWindow
+                        var urlString = '<div><strong>' + marker.act_name + '</strong><br>' + '<br>';
+                        urlString += '<strong><a href="' + directionsURL + '"target="_blank">Directions to location from Centermark</a></strong>' + '<p></p><p><strong>Address: </strong>' + marker.act_addr1 + marker.act_addr2 + '</p>';
+                        urlString += '<p><strong>Phone: </strong>' + marker.act_phone + '</p>';
+                        urlString += '<p><strong>Hours: </strong>' + marker.act_hours + '</p>';
+                        urlString += '</div>';
+                        infowindow.setContent(urlString);
+
+                        //service = new google.maps.places.PlacesService(map);
+                        //service.getDetails(request, callback_actdetail);
+
+                        infowindow.open(map, this);
+                    });
+                };
+            } // create activity marker
+
+
+            var checkAndConvertAddrToGeo = function () {
+                // take address typed in an convert to Geo Location
+                // RPB to implement
+                //turn on wait location
+                modalWaitLocation.style.display = "block";
+
+                //read in the current inputted address and see if it changed
+                var origAddrStr;
+                if (venueObj.searchLoc.addrOriginalStr == undefined || venueObjObj.searchLoc.addrOriginalStr == null) {
+                    origAddrStr = "";
+                } else {
+                    origAddrStr = venueObjObj.searchLoc.addrOriginalStr.trim();
+                };
+
+                //need to check for blanks and null before accepting page's address
+                var strIn;
+                if (configData.dispRichOutput != true) {
+                    //full page
+                    strIn = $("#cityZipSearch").val();
+                } else {
+                    //rich's test screen has different data
+                    var strIn = $("#input-addr").val();
+                };
+                if (strIn == null || strIn == undefined) {
+                    //handle a blank input
+                    strIn = "";
+                };
+                var pageAddrStr = strIn.trim();  //address inputted on page
+
+                if (origAddrStr != pageAddrStr) {
+                    //need to do a new search to get new geo location
+                    //for testing false or bad location, just force in a known address
+                    if (configData.dispRichTestFalseGPS == true) {
+                        //for now, just blast in 467 W. second street address
+                        venueObjObj.searchLoc.addrOriginalStr = "467 W. Second Street, Elmhurst IL 60126";
+                        venueObjObj.searchLoc.addrSearchStr = "467 W. Second Street, Elmhurst IL 60126";
+                        venueObjObj.searchLoc.lat = numeral(41.9057183).format("+0000.000000");
+                        venueObjObj.searchLoc.long = numeral(-87.9747192).format("+0000.000000");
+                        if (configData.dispRichOutput != true) {
+                            $("#cityZipSearch").val(venueObjObj.searchLoc.addrSearchStr);
+                        } else {
+                            //$("#GPScoord").text(numeral(venueObjObj.searchLoc.lat).format("+0000.000000") + " , " + numeral(venueObjObj.searchLoc.long).format("+0000.000000"));
+                            $("#input-addr").val(venueObjObj.searchLoc.addrSearchStr);
+                        };
+                        doneConvertAddrToGeo();
+                    } else {
+                        //needs new geo location based on address and NOT in test mode
+                        var userAddrToGeoURL = "https://maps.googleapis.com/maps/api/geocode/json?address=" + pageAddrStr + "&key=AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk";
+                        $.ajax({
+                            url: userAddrToGeoURL,
+                            method: "GET"
+                        }).then(function (response) {
+                            //got the geo location
+                            var locLatIn = response.results[0].geometry.location.lat;
+                            var locLongIn = response.results[0].geometry.location.lng;
+                            venueObjObj.searchLoc.lat = numeral(locLatIn).format("+0000.000000");
+                            venueObjObj.searchLoc.long = numeral(locLongIn).format("+0000.000000");
+                            venueObjObj.searchLoc.addrSearchStr = response.results[0].formatted_address;
+
+                            if (configData.dispRichOutput != true) {
+                                $("#cityZipSearch").val(venueObjObj.searchLoc.addrSearchStr);
+                            } else {
+                                //$("#GPScoord").text(numeral(venueObjObj.searchLoc.lat).format("+0000.000000") + " , " + numeral(venueObjObj.searchLoc.long).format("+0000.000000"));
+                                $("#input-addr").val(venueObjObj.searchLoc.addrSearchStr);
+                            };
+                            doneConvertAddrToGeo();
+                        });
+                    }
+                } else {
+                    //old addr matches, so can continue
+                    doneConvertAddrToGeo();
+                };
+            };
+
+
+            var doneConvertAddrToGeo = function () {
+                //geo conversion is done, continue on
+                //turn off wait location
+                modalWaitLocation.style.display = "none";
+                venueObjObj.doSearchInitial();
+            };
+
+
+
+
+            //different types
+            function generateMultMark(typeMarker) {
+                console.log('activity=');
+                console.log(typeMarker);
+
+                for (var i = 0; i < activityArray.length; i++) {
+                    activityPlaceStr = activityArray[i];
+                    activityPlace = JSON.parse(activityPlaceStr);
+                    if ((activityPlace.activity == typeMarker) || (typeMarker == 'all')) {
+                        activityPlace.location = new google.maps.LatLng(activityPlace.lat, activityPlace.lon);
+                        console.log("--- activity place ---");
+                        console.log(activityPlace);
+                        if (typeMarker == 'all') {
+                            //maybe can combine and always plot the activityPlace.activity
+                            createActivityMarker(activityPlace, activityPlace.activity);
+                        } else {
+                            createActivityMarker(activityPlace, typeMarker);
+                        };                        
+                    };
+                }
+            };
+
+            var nameActArray = ['all','none', 'football', 'frisbee', 'soccer', 'swimming', 'volleyball']
+
+            if (_venueObj.typeAct == 0) {
+                    //iterate thru all the loop
+                    generateMultMark('all');                
+            } else {
+                //it is not all
+                if (_venueObj.typeAct !== 1) {
+                    //anything but =1 which is none
+                    generateMultMark(nameActArray[_venueObj.typeAct]);
+                };
+            };
+        };
+
+
+        function hideBttnDiv() {
+            $('#buttons').css('display', 'none')
+        }
+    </script>
+</head>
+
+<body>
+    <div id="buttons">
+        <h3>Recreaish demo of using Google Maps</h3>
+
+        <input type="text" id="loc_input" name="loc_input" placeholder="enter address blank for GPS"><br><br>
+
+        <label for="type_map">Type of map:</label>
+        <select name="type_map" id="type_map">
+            <option value="1">Default</option>
+            <option value="2">Night</option>
+        </select>
+        <br />
+
+
+        <label for="type_act">Type of activity:</label>
+        <select name="type_act" id="type_act">
+            <option value="0">all</option>
+            <option value="1">none</option>
+            <option value="2">football</option>
+            <option value="3">frisbee</option>
+            <option value="4">soccer</option>
+            <option value="5">swimming</option>
+            <option value="6">volleyball</option>
+        </select>
+        <br />
+        <br />
+
+        <button type="button" id="bttnStart" class="btn btn-sm btn-info" style="margin: 5px 5px 5px 25px; padding: 2px;">
+            <h4>Start</h4>
+        </button>
+    </div>
+
+    <!-- Modal windows come up next -->
+    <!-- GPS Modal -->
+    <div id="modLocation" class="modal">
+        <div class="modal-content">
+            <span id="closeModLocation" class="close">&times;</span>
+            <h2>
+                <p>Searching for GPS location</p>
+            </h2>
+            <p> </p>
+            <p>Please allow location privaledge and then wait</p>
+        </div>
+    </div>
+
+    <!--Main Container for Map -->
+    <div id="map"></div>
+
+
+    <!--Script tag to load Google Maps Javascript Library -->
+    <!--
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk&libraries=places&callback=initMap"
+        async defer></script>  -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk&libraries=places" async
+            defer></script>
+    <!--
+    <script src="https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk&center=-33.9,151.14999999999998&zoom=12&format=png&maptype=roadmap&style=element:geometry%7Ccolor:0x1d2c4d&style=element:labels.text.fill%7Ccolor:0x8ec3b9&style=element:labels.text.stroke%7Ccolor:0x1a3646&style=feature:administrative.country%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:administrative.land_parcel%7Celement:labels.text.fill%7Ccolor:0x64779e&style=feature:administrative.province%7Celement:geometry.stroke%7Ccolor:0x4b6878&style=feature:landscape.man_made%7Celement:geometry.stroke%7Ccolor:0x334e87&style=feature:landscape.natural%7Celement:geometry%7Ccolor:0x023e58&style=feature:poi%7Celement:geometry%7Ccolor:0x283d6a&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x6f9ba5&style=feature:poi%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:poi.park%7Celement:geometry.fill%7Ccolor:0x023e58&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x3C7680&style=feature:road%7Celement:geometry%7Ccolor:0x304a7d&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:road%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:road.highway%7Celement:geometry%7Ccolor:0x2c6675&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x255763&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0xb0d5ce&style=feature:road.highway%7Celement:labels.text.stroke%7Ccolor:0x023e58&style=feature:transit%7Celement:labels.text.fill%7Ccolor:0x98a5be&style=feature:transit%7Celement:labels.text.stroke%7Ccolor:0x1d2c4d&style=feature:transit.line%7Celement:geometry.fill%7Ccolor:0x283d6a&style=feature:transit.station%7Celement:geometry%7Ccolor:0x3a4762&style=feature:water%7Celement:geometry%7Ccolor:0x0e1626&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x4e6d70&size=480x360"></script>
+        -->
+    <script src="https://apis.google.com/js/api.js" type="text/javascript"></script>
+
+
+
+    <script>
+
+//        var configData = {
+//        };
+
+        var venueObj = {   //main object for the whole venueObj
+            currVenu: {
+                VenueName: "",   //actual name of the venueObj
+                address: {
+                    dispText: "",
+                    houseNum: "",
+                    street: "",
+                    city: "",
+                    state: "",
+                    zipCode: "",
+                    geoLocLat: 0,
+                    geoLocLong: 0,
+                },
+                distToCenter: 0,
+                travelToTime: 0,
+                travelFromTime: 0,
+                url: "",
+                telephone: "",
+                EOR: ""    //place keeper, no comma needed
+            },
+
+
+            //variables are here
+            searchLoc: {
+                lat: 0.0,
+                long: 0.0,
+                dist: 0.0,
+                addrSearchStr: "",
+                addrOriginalStr: ""   //used when first call the routine
+            },
+
+            geoLookup: {
+                recIndexOn: 0,
+                recIndexEnd: 0,
+                currStackWorkingOn: "",
+                geoDistFound: 0.0,
+                geoTimeTravel: 0.0
+            },
+
+            typeMap: 1,
+            typeAct: 0,
+            searchRestF: false,
+            locationFound: false,
+            dispMap: true,
+
+            theaterStack: [],      //array of theaters  --- treat as stack
+            theatersFoundStack: [],  //all the theaters found
+            theatersMatchStack: [], //
+            cinemaIDstack: [],     //to look up unique cinema ID's
+            numCinemaConv: 0,       //which cinema ID converting
+            numSearchConv: 0,      //storage for the loop going thru the conversion
+            numMovieClickedIndex: 0,
+            searchLat: "",
+            searchLon: "",
+            searchDist: "",     //in kilometers
+            movieIDvals: [],    //all the movie ID's
+            movieStack: [],     //array of movieRecType, sorted by movie name
+            genresStack: [],   //all the genres found
+            movieFoundStack: [], //all the movies found
+            theaterPicked: 0,  //sent from index.html page
+
+
+            buildSearchStr: function (typeSearch, indexNum) {
+                var timeFromStr = "2018-02-18T00:00:00-08:00";
+                var timeToStr = "2018-02-19T00:00:00-08:00";
+                var outString = "";
+                var SP = this.searchParam;
+                var formatStr = "YYYY-MM-DD h:mm:ss";
+                //timeFromStr = moment().format(formatStr);
+                timeFromStr = moment().utc().format();
+                timeToStr = moment().add(12, "hours").utc().format();
+                if (typeSearch == 1) {
+                    outString = SP.urlPart1 + SP.urlShowTimes + SP.urlQryKey + SP.qryGeoLocation + venueObj.searchLoc.lat + "," + venueObj.searchLoc.long + SP.qryDistance + venueObj.searchLoc.dist;
+                    //outString = SP.urlPart1 + SP.urlShowTimes + SP.urlQryKey + SP.urlCountry + SP.urlBoundGeo;
+                    outString += SP.qryTimeFrom + timeFromStr + SP.qryTimeTo + timeToStr;
+                };
+                if (typeSearch == 2) {
+                    var cinemaID = venueObj.cinemaIDstack[indexNum]; //pull from unique cinemaID's
+                    outString = SP.urlPart1 + SP.qryCinemas + cinemaID + SP.urlQryKey;
+                };
+                if (typeSearch == 3) {
+                    var movieID = venueObj.movieIDvals[indexNum];
+                    if (movieID === "" || movieID === null) {
+                        //null movieID
+                        outString = "";
+                    } else {
+                        outString = SP.urlPart1 + SP.qryMovies + movieID + SP.urlQryKey + SP.urlLimit;
+                    }
+                };
+
+                return outString;
+            },
+
+
+            doSearchInitial: function () {
+                //function to do current search
+                //return the response
+                //typeSearch = 1 is the closest theaters
+
+                dataSrchDone = false;
+                var shouldSearch = true;
+                //stop from multiple searches
+                var urlString = this.buildSearchStr(1, 0);
+                //check if it is a null string, if so, then need to take care of
+                if (urlString === "") { shouldSearch = false; };
+                if (shouldSearch) {
+                    jQuery.ajax({
+                        url: urlString,
+                        type: "GET"
+                    })
+                        .done(function (dataSrch, textStatus, jqXHR) {
+                            console.log("HTTP Request Succeeded: " + jqXHR.status);
+                            //console.log(dataSrch);
+                            dataTheaterSearch = jQuery.extend(true, {}, dataSrch);
+                            venueObj.doSearchInitialDone();
+                            //return dataTheaterSearch;
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.log(textStatus);
+                            console.log(errorThrown);
+                            console.log("HTTP Request Failed");
+                        })
+                        .always(function () {
+                            /* ... */
+                        });
+                } else {
+                    //mimic a search was finished
+                    venueObj.doSearchInitialDone();
+                };
+            },
+
+
+            doSearchInitialDone: function () {
+                //part one of search is done
+                modalWaitSearch1.style.display = "block";
+
+
+                modalWaitSearch1.style.display = "none";
+                modalWaitSearch2.style.display = "block";
+                //now have to search the movie id's
+                venueObj.numSearchConv = 0;
+            },
+
+
+
+            clearStack: function () {
+                //clears all the current values in the array
+                //leave RPB  var endVal = venueObj.theaterStack.length;
+                for (var i = 0; i < endVal; i++) {
+                    // leave RPB venueObj.theaterStack.pop();
+                };
+            },
+
+            pushToStack: function () {
+                //takes the currTheater and treats as record and pushes to stack array
+                //have to make a copy of an object before pushing it anywhere
+                /*
+                leave RPB
+                var newObj = jQuery.extend(true, {}, venueObj.currTheater);
+                venueObj.theaterStack.push(newObj);    //object is now on the stack
+                */
+            },
+
+            theaterResponseToStack: function (responseIn) {
+                //pass the response in, just in case doing external to object
+                //this is parsing for iShowTimes
+                //stack is NOT CLEARED prior to entering
+                var stArray = responseIn.showtimes;  //showtimes array shortcut
+
+                var currTheaterRec = venueObj.currTheater.theaterRec; //shortcut
+                var endVal = stArray.length;
+                for (var i = 0; i < endVal; i++) {
+                    //transfer the theater response to the currRec variable
+                    currTheaterRec.auditorium = stArray[i].auditorium;
+                    currTheaterRec.booking_type = stArray[i].booking_type;
+                    currTheaterRec.cinema_id = stArray[i].cinema_id;
+                    currTheaterRec.is_3d = stArray[i].is_3d;
+                    currTheaterRec.movie_id = stArray[i].movie_id;
+                    currTheaterRec.start_at = stArray[i].start_at;
+                    venueObj.pushToStack();  //make permanent
+                    //add it to unique theater list
+                    if (venueObj.cinemaIDstack.length === 0) {
+                        //var theaterFoundRec = Object.create(theaterFoundType);
+                        //theaterFoundRec.cinema_id = stArray[i].cinema_id;
+                        //venueObj.theatersFoundStack.push(theaterFoundRec);
+                        venueObj.cinemaIDstack.push(currTheaterRec.cinema_id); //unique ID lookup list
+                    } else {
+                        //there is more than one entry, so make sure it is unique
+                        if (venueObj.cinemaIDstack.indexOf(currTheaterRec.cinema_id) < 0) {
+                            //this is a new cinema not on the stack
+                            //var theaterFoundRec = Object.create(theaterFoundType);
+                            //theaterFoundRec.cinema_id = stArray[i].cinema_id;
+                            //venueObj.theatersFoundStack.push(theaterFoundRec);
+                            venueObj.cinemaIDstack.push(currTheaterRec.cinema_id); //unique ID lookup list
+                        };
+                    };
+                };
+            },
+
+
+            EOR: ""    //place keeper so don't have to worry about stupid commas
+        };  //venue object
+
+
+        //venue object end so continue with app
+        venueObj.searchLoc.lat = numeral(testCenter.lat).format("+0000.000000");
+        venueObj.searchLoc.long = numeral(testCenter.lng).format("+0000.000000");
+
+
+        var modalWaitLocation = document.getElementById('modLocation'); //location
+
+
+        var getLocation = function (_venueObj) {
+            //need to find out which option is picked
+
+            var locInput = $('#loc_input').val();
+            console.log('location input is ');
+            console.log(locInput);
+
+            var chk_locInput = locInput+"blank";
+            chk_locInput = chk_locInput.trim();
+            if (chk_locInput == "blank") {
+                console.log("using GPS");
+                locSelect = 1;
+                modalWaitLocation.style.display = "block";
+                navigator.geolocation.getCurrentPosition(showPosition,
+                    function (error) {
+                        //there is a problem with getting the GPS data
+
+                        //alert("why cancel ?")
+                        console.log("before the function");
+                        geoPushDefault();
+                        modalWaitLocation.style.display = "none";
+                        //showPosition();
+                    });
+
+                if (configData.dispRichOutput === true) {
+                    //modalMap.style.display = "none";
+                    //document.getElementById("container-map").style.display = "none";
+                };
+            } else {
+                //an adress was input
+                locInput = locInput.trim();
+                _venueObj.searchLoc.addrOriginalStr = locInput;
+                checkAndConvertAddrToGeo(_venueObj);                
+            };            
+        };
+
+
+        var convertGeoToAddr = function (_venueObj) {
+            var userPositionToAddressURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+            userPositionToAddressURL += numeral(venueObj.searchLoc.lat).format("+0000.000000");
+            userPositionToAddressURL += "," + numeral(venueObj.searchLoc.long).format("+0000.000000");
+            userPositionToAddressURL += "&key=" + configData.keyAPIgoogle;
+
+            $.ajax({
+                url: userPositionToAddressURL,
+                method: "GET"
+            }).then(function (response) {
+                venueObj.searchLoc.addrSearchStr = response.results[0].formatted_address;
+                //store the orignal string to see if need to re-compute geo location
+                venueObj.searchLoc.addrOriginalStr = venueObj.searchLoc.addrSearchStr;
+                if (configData.dispRichOutput != true) {
+                    $("#cityZipSearch").val(venueObj.searchLoc.addrSearchStr);
+                } else {
+                    //$("#GPScoord").text(numeral(venueObj.searchLoc.lat).format("+0000.000000") + " , " + numeral(venueObj.searchLoc.long).format("+0000.000000"));
+                    $("#input-addr").val(venueObj.searchLoc.addrSearchStr);
+                };
+                //turn off wait location
+                modalWaitLocation.style.display = "none";
+                //pull up the map
+                if (_venueObj.dispMap) {
+                    //pull up the map
+                    var typeMap = $('#type_map option:selected').val();
+                    venueObj.typeMap = typeMap;
+                    var typeAct = $('#type_act option:selected').val();
+                    venueObj.typeAct = parseInt(typeAct);
+                    initMap("blank", venueObj);
+                };
+            });
+        };  //end of  convertGeoToAddr
+
+
+        var showPosition = function (position) {
+            if (configData.dispRichOutput === true) {
+                $("#input-lat").val(numeral(position.coords.latitude).format("0000.000000"));
+                $("#input-lon").val(numeral(position.coords.longitude).format("0000.000000"));
+                //this was for distance
+                $("#input-dist").val(numeral(configData.venueSearchDist).format("0.0"));
+                venueObj.searchLoc.lat = numeral(position.coords.latitude).format("0000.000000");
+                venueObj.searchLoc.long = numeral(position.coords.longitude).format("0000.000000");
+                venueObj.searchLoc.dist = configData.theaterSearchDist;
+                venueObj.addrSearchStr = "";
+            } else {
+                venueObj.searchLoc.lat = numeral(position.coords.latitude).format("0000.000000");
+                venueObj.searchLoc.long = numeral(position.coords.longitude).format("0000.000000");
+                venueObj.searchLoc.dist = configData.theaterSearchDist;
+                venueObj.addrSearchStr = "";
+            };
+            //next step is to convert to a postal address
+            convertGeoToAddr(venueObj);
+        };
+
+        var checkAndConvertAddrToGeo = function (_venueObj) {
+            // take address typed in an convert to Geo Location
+            // RPB to implement
+            //turn on wait location
+            modalWaitLocation.style.display = "block";
+
+            //read in the current inputted address and see if it changed
+            var origAddrStr;
+            if (_venueObj.searchLoc.addrOriginalStr == undefined || _venueObj.searchLoc.addrOriginalStr == null) {
+                origAddrStr = "";
+            } else {
+                origAddrStr = _venueObj.searchLoc.addrOriginalStr.trim();
+                _venueObj.searchLoc.addrSearchStr = origAddrStr;
+            };
+
+            var userAddrToGeoURL = "https://maps.googleapis.com/maps/api/geocode/json?address=" + origAddrStr + "&key=AIzaSyAE03QBe5yDXRr1fzDvkWs9i_E_BIyCDhk";
+            $.ajax({
+                url: userAddrToGeoURL,
+                method: "GET"
+            }).then(function (response) {
+                //got the geo location
+                var locLatIn = response.results[0].geometry.location.lat;
+                var locLongIn = response.results[0].geometry.location.lng;
+                venueObj.searchLoc.lat = numeral(locLatIn).format("+0000.000000");
+                venueObj.searchLoc.long = numeral(locLongIn).format("+0000.000000");
+                venueObj.searchLoc.addrSearchStr = response.results[0].formatted_address;
+
+                doneConvertAddrToGeo();
+            });           
+        };
+
+
+        var doneConvertAddrToGeo = function () {
+            //geo conversion is done, continue on
+            //turn off wait location
+            modalWaitLocation.style.display = "none";
+            //pull up the map
+            var typeMap = $('#type_map option:selected').val();
+            venueObj.typeMap = typeMap;
+            var typeAct = $('#type_act option:selected').val();
+            venueObj.typeAct = parseInt(typeAct);
+            initMap("blank", venueObj);
+
+            console.log(venueObj.searchLoc.lat);
+            console.log(venueObj.searchLoc.long);
+            console.log(venueObj.searchLoc.addrSearchStr);
+            
+            //theaterObj.doSearchInitial();
+        };
+
+
+        $(document).ready(function () {
+            //getLocation();
+
+            //add click listener to all movie pics
+
+            $("#bttnStart").on("click", function (event) {
+                //plot button was pushed
+                console.log("start clicked");
+                event.preventDefault();
+                hideBttnDiv();
+                venueObj.dispMap = true;
+                //getLocation();
+                getLocation(venueObj); //need to wait for the location to come in
+            });
+        });
+    </script>
+
+</body>
+
+</html>
